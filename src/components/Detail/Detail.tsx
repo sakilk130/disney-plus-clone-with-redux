@@ -48,7 +48,7 @@ function Detail() {
 export default Detail;
 
 const Container = styled.div`
-  min-height: calc(100vh-70px);
+  min-height: calc(100vh - 70px);
   padding: 0 calc(3.5vw + 5px);
   position: relative;
 `;
@@ -74,6 +74,8 @@ const ImageTitle = styled.div`
   width: 35vw;
   min-height: 170px;
   min:width:200px;
+  margin-top:60px;
+
    img {
     height: 100%;
     width: 100%;
@@ -145,4 +147,5 @@ const Description = styled.div`
   font-size: 20px;
   margin-top: 16px;
   color: rgb(249, 249, 249);
+  max-width: 760px;
 `;
