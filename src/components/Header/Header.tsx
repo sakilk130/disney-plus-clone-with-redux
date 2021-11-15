@@ -1,23 +1,71 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  selectUserEmail,
   selectUserName,
   selectUserPhoto,
+  setUserLogin,
+  setSignOut,
 } from '../../features/user/userSlice';
+import { auth, provider } from '../../firebase/firebase';
 
 function Header() {
+  const dispatch = useDispatch();
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        dispatch(
+          setUserLogin({
+            name: user?.displayName,
+            email: user?.email,
+            photo: user?.photoURL,
+          })
+        );
+        navigate('/');
+      } else {
+        dispatch(setSignOut());
+        navigate('/login');
+      }
+    });
+  }, []);
+
+  const SignIn = () => {
+    auth
+      .signInWithPopup(provider)
+      .then((result) => {
+        let user = result.user;
+        dispatch(
+          setUserLogin({
+            name: user?.displayName,
+            email: user?.email,
+            photo: user?.photoURL,
+          })
+        );
+        navigate('/');
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
+
+  const SignOut = () => {
+    auth.signOut().then(() => {
+      dispatch(setSignOut());
+      navigate('/login');
+    });
+  };
 
   return (
     <Nav>
       <Logo src="/images/logo.svg" />
       {!userName ? (
         <LoginContainer>
-          <Login>Login</Login>
+          <Login onClick={SignIn}>Login</Login>
         </LoginContainer>
       ) : (
         <>
@@ -47,7 +95,7 @@ function Header() {
               <span>SERIES</span>
             </Link>
           </NavMenu>
-          <UserImage src="https://avatars.githubusercontent.com/u/44520484?v=4" />
+          <UserImage src={userPhoto} onClick={SignOut} />
         </>
       )}
     </Nav>
